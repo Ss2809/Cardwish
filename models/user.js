@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
   gogleId : {type :String, uniqe : true},
   deliveryAddress: { type: String, required: false },
   role: { type: String, enum: ["user", "admin"], default: "user" },
+  refreshtoken : {type :String}
 });
 
 const User = mongoose.model("User", userSchema);

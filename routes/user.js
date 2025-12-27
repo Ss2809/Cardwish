@@ -33,9 +33,21 @@ router.post("/", async (req, res) => {
     deliveryAddress,
   });
   await newuser.save();
-  const jwttoken = creattoken({ _id: newuser._id, name: newuser.name });
+  const { accestoken, refreshtoken } = creattokens({
+    _id: newuser._id,
+    name: newuser.name,
+  });
+  const hashbasedtoken  = await bcrypt.hash(refreshtoken,10);
+  newuser.refreshtoken = hashbasedtoken;
+  await newuser.save();
+  res.cookie("refreshtoken", refreshtoken, {
+    httpOnly: true,
+    secure: false, //true in dev mode
+    samSite : "none",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
 
-  res.status(201).json(jwttoken);
+  res.status(201).json(accestoken);
 });
 
 router.post("/login", async (req, res) => {
@@ -49,8 +61,20 @@ router.post("/login", async (req, res) => {
   if (!validatepassword) {
     return res.status(401).json({ message: "Invalid User!" });
   }
-  const jwttoken = creattoken({ _id: person._id, name: person.name });
-  res.json({ jwttoken });
+  const { accestoken, refreshtoken } = creattokens({
+    _id: person._id,
+    name: person.name,
+  });
+  const hashbasedtoken  = await bcrypt.hash(refreshtoken,10);
+  person.refreshtoken = hashbasedtoken;
+  await person.save();
+  res.cookie("refreshtoken", refreshtoken, {
+    httpOnly: true,
+    secure: false, //true in dev mode
+    samSite : "none",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+  res.json({ accestoken });
 });
 
 router.post("/in", authmiddleware, async (req, res) => {
@@ -58,8 +82,12 @@ router.post("/in", authmiddleware, async (req, res) => {
   const userData = await user.findById(req.user._id).select("-password");
   res.json(userData);
 });
-const creattoken = (data) => {
-  return jwt.sign(data, process.env.JWT_KEY, { expiresIn: "2h" });
+const creattokens = (data) => {
+  const accestoken = jwt.sign(data, process.env.JWT_KEY_ACCES_TOKEN, { expiresIn: "5m" });
+  const refreshtoken = jwt.sign({ _id: data._id }, process.env.JWT_KEY_REFERSH_TOKEN, {
+    expiresIn: "7d",
+  });
+  return { accestoken, refreshtoken };
 };
 
 module.exports = router;

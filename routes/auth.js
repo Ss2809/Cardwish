@@ -37,9 +37,9 @@ router.get(
       { _id: user._id, name: user.name },
       process.env.JWT_KEY,
       { expiresIn: "2h" }
-    );
-    res.redirect(`http://localhost:5173/dashbaord?token=${token}`)
-    //res.json(token);
+    ); 
+    //res.redirect(`http://localhost:5173/dashbaord?token=${token}`)
+    res.json(token);
   }
 );
 
