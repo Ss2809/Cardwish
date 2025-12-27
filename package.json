@@ -1,0 +1,30 @@
+{
+  "name": "cardwish-backend",
+  "version": "1.0.0",
+  "description": "��#\u0000 \u0000C\u0000a\u0000r\u0000d\u0000w\u0000i\u0000s\u0000h\u0000\r\u0000 \u0000",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ss2809/Cardwish.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ss2809/Cardwish/issues"
+  },
+  "homepage": "https://github.com/Ss2809/Cardwish#readme",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "joi": "^18.0.2",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.0.2",
+    "passport": "^0.7.0",
+    "passport-google-oauth2": "^0.2.0"
+  }
+}
