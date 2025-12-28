@@ -19,11 +19,13 @@
   "homepage": "https://github.com/Ss2809/Cardwish#readme",
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "joi": "^18.0.2",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.0.2",
+    "multer": "^2.0.2",
     "passport": "^0.7.0",
     "passport-google-oauth2": "^0.2.0"
   }
