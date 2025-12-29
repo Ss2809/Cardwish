@@ -2,6 +2,8 @@ const express = require("express");
 const routes = express.Router();
 const multer = require("multer");
 const Catgories = require("../models/catgories");
+const chechAdmin = require("../middleware/chechAdmin");
+const authmiddleware = require("../middleware/auth");
 
 
 const storage = multer.diskStorage({
@@ -28,7 +30,7 @@ const upload = multer({
   limits: { fileSize: 2 * 1024 * 1024 }
 });
 
-routes.post("/catgories", upload.single("icon"), async (req, res) => {
+routes.post("/catgories",authmiddleware,chechAdmin, upload.single("icon"), async (req, res) => {
   if (!req.body.name || !req.file) {
     return res.status(400).json({ message: "name and icon are requird!!" });
   }
@@ -40,5 +42,8 @@ routes.post("/catgories", upload.single("icon"), async (req, res) => {
   await newCatgories.save();
   res.status(201).json({ message: "Catgories added succfully!!" });
 });
-
+routes.post("/allCatgories",async(req,res)=>{
+  const allCatgories = await Catgories.find().sort({"name": 1});
+  res.json({allCatgories});
+})
 module.exports = routes;

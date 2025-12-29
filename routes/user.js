@@ -36,6 +36,7 @@ router.post("/", async (req, res) => {
   const { accestoken, refreshtoken } = creattokens({
     _id: newuser._id,
     name: newuser.name,
+    role : newuser.role
   });
   const hashbasedtoken  = await bcrypt.hash(refreshtoken,10);
   newuser.refreshtoken = hashbasedtoken;
@@ -64,6 +65,7 @@ router.post("/login", async (req, res) => {
   const { accestoken, refreshtoken } = creattokens({
     _id: person._id,
     name: person.name,
+    role :person.role
   });
   const hashbasedtoken  = await bcrypt.hash(refreshtoken,10);
   person.refreshtoken = hashbasedtoken;
