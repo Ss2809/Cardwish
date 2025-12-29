@@ -118,7 +118,7 @@ router.post("/logout", async (req, res) => {
 
 const creattokens = (data) => {
   const accestoken = jwt.sign(data, process.env.JWT_KEY_ACCES_TOKEN, {
-    expiresIn: "5m",
+    expiresIn: "1d",
   });
   const refreshtoken = jwt.sign(
     { _id: data._id },
