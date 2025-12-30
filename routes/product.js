@@ -1,6 +1,8 @@
 const express = require("express");
 const authmiddleware = require("../middleware/auth");
 const multer = require("multer");
+const fs = require("fs");
+const path = require("path");
 const checkRole = require("../middleware/chechRole");
 const router = express.Router();
 const Product = require("../models/products");
@@ -50,9 +52,53 @@ router.post("/",authmiddleware,checkRole("seller"),upload.array("images", 8), as
 })
 
 router.get("/", async(req, res)=>{
-  const allproduct = await Product.find();
-  res.send(allproduct);
+  const page = parseInt(req.query.page)
+  const perpage = 5
+  const allproduct = await Product.find().select("-description -seller -category -__v").lean().skip((page-1)*perpage).limit(perpage);
+  const updateProduct =  allproduct.map((product)=>{
+    const numberofReviews = product.review.length
+    const sumofRating = product.review.reduce((sum,review)=> sum + review.rating, 0)
+    const averageRating = sumofRating/(numberofReviews|| 1)
+    return {
+      ...product,
+      images : product.images[0],
+      review : {numberofReviews, averageRating},
+    }
+  })
+  res.send(updateProduct);
 })
+router.delete("/:id", authmiddleware, async (req, res) => {
+  const product = await Product.findById(req.params.id);
+
+  if (!product) return res.status(404).json({ message: "Product not found!" });
+
+  if (
+    req.user.role !== "admin" &&
+    req.user._id.toString() !== product.seller.toString()
+  ) {
+    return res.status(403).json({ message: "Not allowed!" });
+  }
+
+  //images deleted code remining 
+
+  await product.deleteOne();
+  res.json({ message: "Product deleted successfully!" });
+});
+
+
+
+
+router.get("/:id", async(req,res)=>{
+  const id = req.params.id
+  const product = await Product.findById(id).populate("seller", "_id name email").populate("review.user","_id name email")
+  if(!product){
+    return res.status(404).json({message:"Invalid product!"})
+  }
+  res.json({product});
+})
+
+
+
 module.exports = router;
 
 
