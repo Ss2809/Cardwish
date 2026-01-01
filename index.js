@@ -26,5 +26,10 @@ app.use("/api/auth", authrouter);
 app.use("/api", catgories);
 app.use("/api/product", product);
 
+app.use((error,req,res,next)=>{
+  console.log("Error middleware running !!");
+  return res.json({message:"Internal Server Error!"})
+})
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on ${PORT}....`));
