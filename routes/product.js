@@ -50,7 +50,11 @@ router.post("/",authmiddleware,checkRole("seller"),upload.array("images", 8), as
  await newProduct.save();
  res.status(201).json({newProduct});
 })
-
+router.get('/suggestions', async(req,res)=>{
+  const search = req.query.search
+  const product = await Product.find({title : {$regex :search,$options:"i"},}).select("_id title").limit(10)
+  res.json(product);
+})
 router.get("/", async(req, res)=>{
   const page = parseInt(req.query.page)
   const perpage = 5
