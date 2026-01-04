@@ -10,6 +10,7 @@ const userSchema = require("./routes/user");
 const authrouter = require("./routes/auth");
 const catgories = require("./routes/catgories");
 const product = require("./routes/product");
+const card = require("./routes/card");
 
 
 mongoose
@@ -25,11 +26,12 @@ app.use("/api/user", userSchema);
 app.use("/api/auth", authrouter);
 app.use("/api", catgories);
 app.use("/api/product", product);
+app.use("/api/card", card);
 
-app.use((error,req,res,next)=>{
-  console.log("Error middleware running !!");
-  return res.json({message:"Internal Server Error!"})
-})
+// app.use((error,req,res,next)=>{
+//   console.log("Error middleware running !!");
+//   return res.json({message:"Internal Server Error!"})
+// })
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on ${PORT}....`));
