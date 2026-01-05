@@ -5,6 +5,7 @@ const Cart = require("../models/card");
 const crypto = require("crypto");
 const Order = require("../models/order");
 const Card = require("../models/card");
+const checkRole = require("../middleware/chechRole");
 const router = express.Router();
 
 const razorpay = new Razorpay({
@@ -13,10 +14,10 @@ const razorpay = new Razorpay({
 });
 
 router.post("/create-order", authmiddleware, async (req, res) => {
-  const {shippingAddress} = req.body
+  const { shippingAddress } = req.body;
   if (!shippingAddress) {
-       return res.json({message: "shippingAddress is required!!"});
-    }
+    return res.json({ message: "shippingAddress is required!!" });
+  }
   const cart = await Cart.findOne({ user: req.user._id });
 
   if (!cart || cart.products.length === 0) {
@@ -34,12 +35,16 @@ router.post("/create-order", authmiddleware, async (req, res) => {
 });
 
 router.post("/verify", authmiddleware, async (req, res) => {
-  const { razorpay_order_id, razorpay_payment_id, razorpay_signature,shippingAddress } =
-    req.body;
-    if (!shippingAddress) {
-       return res.json({message: "shippingAddress is required!!"});
-    }
- // console.log({shippingAddress})
+  const {
+    razorpay_order_id,
+    razorpay_payment_id,
+    razorpay_signature,
+    shippingAddress,
+  } = req.body;
+  if (!shippingAddress) {
+    return res.json({ message: "shippingAddress is required!!" });
+  }
+  // console.log({shippingAddress})
   const body = razorpay_order_id + "|" + razorpay_payment_id;
   const expectedSignature = crypto
     .createHmac("sha256", process.env.Razorpay_key_secret)
@@ -57,7 +62,7 @@ router.post("/verify", authmiddleware, async (req, res) => {
     products: cart.products,
     totalPrice: cart.totalCardPrice,
     shippingAddress: shippingAddress,
-    totalProduct : cart.totalProduct,
+    totalProduct: cart.totalProduct,
     paymentStatus: "PAID",
     razorpayOrderId: razorpay_order_id,
     paymentId: razorpay_payment_id,
@@ -68,5 +73,30 @@ router.post("/verify", authmiddleware, async (req, res) => {
 
   res.json({ success: true, message: "Payment verified & order placed" });
 });
+
+router.get("/", authmiddleware, async (req, res) => {
+  const OrderHistory = await Order.find({ user: req.user._id })
+    .sort({ creatAt: -1 })
+    .select("-user -shippingAddress -paymentId -razorpayorderId");
+  res.json({ message: "Order History", OrderHistory });
+});
+
+router.patch(
+  "/status/:orderId",
+  authmiddleware,
+  checkRole("admin"),
+  async (req, res) => {
+    const { statuscode } = req.body;
+    const updatedstatus = await Order.findByIdAndUpdate(
+      req.params.orderId,
+      { orderStatus: statuscode },
+      { new: true }
+    );
+    if (!updatedstatus) {
+      return res.status(404).json({ message: "Order not found!" });
+    }
+    res.json({ message: "update succfully!!", updatedstatus });
+  }
+);
 
 module.exports = router;
