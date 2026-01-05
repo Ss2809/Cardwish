@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CardWish Checkout</title>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+
+<h2>🛒 CardWish Checkout</h2>
+<button onclick="payNow()">Pay Now</button>
+
+<script>
+const TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTRlYmUzZmYzMzQzZWU5YjEyMTRlNTgiLCJuYW1lIjoiQ29kZSBibGVzcyBZb3UiLCJyb2xlIjoic2VsbGVyIiwiaWF0IjoxNzY3NTg0NDU0LCJleHAiOjE3Njc2NzA4NTR9.Pip05uHgG3gu1VjSjjIZmdoBvwufcv-apURjW9VLTok";
+
+async function payNow(){
+
+  const shippingAddress = "Pune 415507";
+
+  const res = await fetch("http://localhost:3000/api/order/create-order",{
+    method:"POST",
+    headers:{
+      "Authorization":"Bearer "+TOKEN,
+      "Content-Type":"application/json"
+    },
+    body: JSON.stringify({ shippingAddress })
+  });
+
+  const order = await res.json();
+   if(!order.id){
+    alert(order.message);   // "Cart empty"
+    return;
+  }
+  const options = {
+    key:"rzp_test_S02puFkdWJqfmP",
+    amount: order.amount,
+    currency:"INR",
+    name:"CardWish",
+    order_id: order.id,
+
+    handler: async function (response){
+      response.shippingAddress = shippingAddress;
+
+      await fetch("http://localhost:3000/api/order/verify",{
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json",
+          "Authorization":"Bearer "+TOKEN
+        },
+        body: JSON.stringify(response)
+      });
+
+      alert("Order Placed Successfully!");
+    }
+  };
+
+  new Razorpay(options).open();
+}
+</script>
+</body>
+</html>

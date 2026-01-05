@@ -21,6 +21,7 @@ const orderSchema = new mongoose.Schema({
     totalPrice: { type: Number, default: 0 },
     shippingAddress : {type:String,required : true},
     paymentId : {type: String, required : true},
+    razorpayorderId : String,
     paymentStatus : {type:String,required : true},
     orderStatus : {type:String,enum : ["pending","processing","shipped","delivered","cancelled"], default : "pending"},
     creatAt :{type:Date, default : Date.now()},
